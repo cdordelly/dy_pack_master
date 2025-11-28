@@ -1,0 +1,15 @@
+schema_version = "1.0.0"
+
+id = "dy_pack_master"
+version = "1.0.0"
+name = "dy Pack Master"
+tagline = "Make Blender projects portable for render farms by localizing assets, addons, and dependencies."
+maintainer = "Carlos Dordelly - @cdordelly"
+type = "add-on"
+website = "https://github.com/cdordelly/dy_pack_master"
+blender_version_min = "4.2.0"
+
+[permissions]
+files = "All" # We need full file access to copy assets anywhere
+network = []
+clipboard = []

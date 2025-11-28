@@ -20,7 +20,7 @@ class DY_PACK_MASTER_PT_main(bpy.types.Panel):
         
         # Asset Localization
         layout.label(text="Asset Localization", icon='FILE_3D')
-        layout.operator("dy_pack_master.localize_abc", icon='FILE_CACHE')
+        layout.operator("dy_pack_master.localize_mesh_cache", icon='FILE_CACHE')
         layout.operator("dy_pack_master.localize_vdb", icon='FILE_VOLUME')
         layout.operator("dy_pack_master.localize_references", icon='LINK_BLEND')
         layout.operator("dy_pack_master.localize_ocio", icon='COLOR')
@@ -39,7 +39,7 @@ class DY_PACK_MASTER_MT_menu(bpy.types.Menu):
         layout = self.layout
         layout.operator("dy_pack_master.addons_tool", text="Localize Addons Tool", icon='PREFERENCES')
         layout.separator()
-        layout.operator("dy_pack_master.localize_abc", text="Localize Alembics")
+        layout.operator("dy_pack_master.localize_mesh_cache", text="Localize Mesh Cache (ABC/USD)")
         layout.operator("dy_pack_master.localize_vdb", text="Localize VDBs")
         layout.operator("dy_pack_master.localize_references", text="Localize References")
         layout.operator("dy_pack_master.localize_ocio", text="Localize OCIO")

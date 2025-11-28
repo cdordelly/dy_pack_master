@@ -1,4 +1,4 @@
-from . import alembic
+from . import mesh_sequence_cache
 from . import vdb
 from . import references
 from . import ocio
@@ -7,7 +7,7 @@ from . import report
 from . import render_settings
 
 modules = (
-    alembic,
+    mesh_sequence_cache,
     vdb,
     references,
     ocio,
