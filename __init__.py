@@ -37,7 +37,7 @@ class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
             ('EXPORT', "File > Export", "Show in File > Export menu"),
             ('SIDEBAR', "3D Viewport Sidebar", "Show in 3D Viewport N-Panel"),
         ],
-        default='EXPORT',
+        default='SIDEBAR',
         update=update_menu_location,  # Trigger UI refresh on change
     )
     

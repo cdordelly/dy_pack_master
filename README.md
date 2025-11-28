@@ -44,6 +44,23 @@ Need to send custom add-ons to the farm?
 1.  Zip the `dy_pack_master` folder.
 2.  Go to Preferences > Add-ons > Install... and select the zip file.
 
+## Preferences
+
+Access addon preferences in **Edit > Preferences > Add-ons > dy Pack Master**.
+![Addon Preferences](img/prefs.jpg)
+
+### Menu Location
+Choose where the addon tools appear:
+- **3D Viewport Sidebar** (default): Tools appear in the N-Panel.
+![Preferences Viewport](img/pref_location_viewport.png)
+- **File > Export**: Tools appear directly in the File > Export menu.
+![Preferences File-Export](img/pref_location_file-export.png)
+
+### Blend File Suffix
+Customize the suffix added to your packed blend file (default: `_packed`)
+
+Example: `scene.blend` → `scene_packed.blend`
+
 ## Python Scripting
 
 You can use the individual operators in your own Python scripts or automation workflows:
