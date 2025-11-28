@@ -8,6 +8,14 @@ class DY_PACK_MASTER_PT_main(bpy.types.Panel):
     bl_region_type = 'UI'
     bl_category = "dy Pack Master"
 
+    @classmethod
+    def poll(cls, context):
+        # Only show panel if menu_location preference is set to SIDEBAR
+        prefs = context.preferences.addons.get('dy_pack_master')
+        if prefs:
+            return prefs.preferences.menu_location == 'SIDEBAR'
+        return False  # Hide by default (default is EXPORT menu)
+
     def draw(self, context):
         layout = self.layout
         
@@ -25,33 +33,38 @@ class DY_PACK_MASTER_PT_main(bpy.types.Panel):
         layout.operator("dy_pack_master.localize_ocio", icon='COLOR', text="Localize OCIO")
         layout.operator("dy_pack_master.missing_files_report", icon='ERROR', text="Missing Files Report")
 
-class DY_PACK_MASTER_MT_menu(bpy.types.Menu):
-    bl_label = "dy Pack Master"
-    bl_idname = "DY_PACK_MASTER_MT_menu"
-
-    def draw(self, context):
-        layout = self.layout
-        layout.operator("dy_pack_master.pack_project", text="Pack Project", icon='EXPORT')
-        layout.separator()
-        layout.operator("dy_pack_master.addons_tool", text="Localize Add-ons Tool", icon='PREFERENCES')
-        layout.operator("dy_pack_master.localize_ocio", text="Localize OCIO", icon='COLOR')
-        layout.operator("dy_pack_master.missing_files_report", text="Missing Files Report", icon='ERROR')
-
-def menu_func(self, context):
-    self.layout.separator()
-    self.layout.menu(DY_PACK_MASTER_MT_menu.bl_idname, icon='PACKAGE')
+def menu_func_export(self, context):
+    # Only show in export menu if preference is set to EXPORT
+    prefs = context.preferences.addons.get('dy_pack_master')
+    if prefs and prefs.preferences.menu_location == 'SIDEBAR':
+        return  # Don't show if using sidebar
+    
+    layout = self.layout
+    layout.separator()
+    layout.label(text="dy Pack Master", icon='PACKAGE')
+    layout.operator("dy_pack_master.pack_project", text="Pack Project", icon='EXPORT')
+    layout.operator("dy_pack_master.addons_tool", text="Localize Add-ons", icon='PREFERENCES')
+    layout.operator("dy_pack_master.localize_ocio", text="Localize OCIO", icon='COLOR')
+    layout.operator("dy_pack_master.missing_files_report", text="Missing Files Report", icon='ERROR')
 
 classes = (
     DY_PACK_MASTER_PT_main,
-    DY_PACK_MASTER_MT_menu,
 )
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.TOPBAR_MT_file_export.append(menu_func)
+    
+    # Always register to export menu (visibility controlled by menu_func_export)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 def unregister():
-    bpy.types.TOPBAR_MT_file_export.remove(menu_func)
+    # Unregister from export menu
+    if hasattr(bpy.types, 'TOPBAR_MT_file_export'):
+        try:
+            bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+        except:
+            pass
+    
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)

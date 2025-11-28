@@ -10,11 +10,56 @@ bl_info = {
     "category": "System",
 }
 
+import bpy
+import bpy
 from .scripts import ui
 from .scripts import modules
 from .scripts import pack_project
 
+def update_menu_location(self, context):
+    """Update function called when menu_location preference changes"""
+    # Force UI refresh by toggling region redraw
+    for window in context.window_manager.windows:
+        for area in window.screen.areas:
+            if area.type == 'VIEW_3D':
+                for region in area.regions:
+                    if region.type == 'UI':
+                        region.tag_redraw()
+
+# Addon Preferences
+class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
+    bl_idname = __name__
+
+    menu_location: bpy.props.EnumProperty(
+        name="Menu Location",
+        description="Where to show the dy Pack Master menu",
+        items=[
+            ('EXPORT', "File > Export", "Show in File > Export menu"),
+            ('SIDEBAR', "3D Viewport Sidebar", "Show in 3D Viewport N-Panel"),
+        ],
+        default='EXPORT',
+        update=update_menu_location,  # Trigger UI refresh on change
+    )
+    
+    blend_suffix: bpy.props.StringProperty(
+        name="Blend File Suffix",
+        description="Suffix to add when saving packed blend file",
+        default="_packed",
+    )
+
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.label(text="UI Settings", icon='PREFERENCES')
+        layout.prop(self, "menu_location")
+        
+        layout.separator()
+        
+        layout.label(text="Packing Settings", icon='FILE_BLEND')
+        layout.prop(self, "blend_suffix")
+
 def register():
+    bpy.utils.register_class(DY_PACK_MASTER_Preferences)
     modules.register()
     pack_project.register()
     ui.register()
@@ -23,3 +68,4 @@ def unregister():
     ui.unregister()
     pack_project.unregister()
     modules.unregister()
+    bpy.utils.unregister_class(DY_PACK_MASTER_Preferences)

@@ -6,8 +6,6 @@ from .modules import render_settings
 from .modules import report
 from .modules import utils
 
-blend_suffix = "_packed"
-
 def pack_project():
     """
     Main packing function that executes all localization steps:
@@ -17,8 +15,12 @@ def pack_project():
     4. Localize VDBs
     5. Set relative output path
     6. Generate missing files report
-    7. Save blend with _collect suffix
+    7. Save blend with suffix from preferences
     """
+    # Get preferences
+    prefs = bpy.context.preferences.addons['dy_pack_master'].preferences
+    blend_suffix = prefs.blend_suffix
+    
     print("=" * 50)
     print("dy Pack Master - Pack Project")
     print("=" * 50)
@@ -47,7 +49,7 @@ def pack_project():
     print("\n[6/7] Generating missing files report...")
     report.missing_files_report()
     
-    # 7. Save with suffix
+    # 7. Save with suffix from preferences
     print(f"\n[7/7] Saving blend file with '{blend_suffix}' suffix...")
     new_filepath = utils.save_blend_with_suffix(blend_suffix)
     
@@ -55,19 +57,26 @@ def pack_project():
     print("Pack Project Complete!")
     print("=" * 50)
     
-    return {'FINISHED'}
+    return {'FINISHED'}, new_filepath
 
 class DY_PACK_MASTER_OT_pack_project(bpy.types.Operator):
     """Pack and localize entire project for render farm"""
     bl_idname = "dy_pack_master.pack_project"
     bl_label = "Pack Project"
-    bl_description = f"One-click: Pack resources, localize assets, and save as blend file with '{blend_suffix}' suffix"
+    
+    @classmethod
+    def description(cls, context, properties):
+        prefs = context.preferences.addons['dy_pack_master'].preferences
+        return f"One-click: Pack resources, localize assets, and save as blend file with '{prefs.blend_suffix}' suffix"
 
     def execute(self, context):
-        result = pack_project()
+        result, new_filepath = pack_project()
         
         # Show success message
-        self.report({'INFO'}, f"Project packed successfully: {new_filepath}")
+        if new_filepath:
+            self.report({'INFO'}, f"Project packed: {new_filepath}")
+        else:
+            self.report({'INFO'}, "Project packed successfully")
         
         return result
 
