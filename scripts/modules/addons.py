@@ -3,7 +3,7 @@ import addon_utils
 import os
 import zipfile
 from bpy.app.handlers import persistent
-from .. import utils
+from . import utils
 
 BLACKLIST = {
     "cycles",
@@ -129,7 +129,7 @@ class DY_PACK_MASTER_UL_addons_list(bpy.types.UIList):
         row.label(text=f"({item.module_name})", icon='SCRIPT')
 
 class DY_PACK_MASTER_OT_addons_tool(bpy.types.Operator):
-    """Open the Addon Localization Tool in a floating dialog"""
+    """Open the Addon Localization Tool."""
     bl_idname = "dy_pack_master.addons_tool"
     bl_label = "Localize Add-ons Tool"
     bl_options = {'REGISTER', 'UNDO'}

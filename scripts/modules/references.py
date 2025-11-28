@@ -1,7 +1,7 @@
 import bpy
 import os
 import shutil
-from .. import utils
+from . import utils
 
 def localize_references():
     """

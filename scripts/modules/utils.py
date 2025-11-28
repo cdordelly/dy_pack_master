@@ -38,3 +38,31 @@ def get_blend_dir():
     if not bpy.data.filepath:
         return None
     return os.path.dirname(bpy.data.filepath)
+
+def save_blend_with_suffix(suffix):
+    """
+    Saves the current blend file with a suffix added to the filename.
+    Example: scene.blend -> scene_collect.blend
+    """
+    current_filepath = bpy.data.filepath
+    
+    if not current_filepath:
+        print("ERROR: Blend file must be saved first before using 'Save As' with suffix.")
+        return
+    
+    # Split the path into directory, name, and extension
+    directory = os.path.dirname(current_filepath)
+    filename = os.path.basename(current_filepath)
+    name, ext = os.path.splitext(filename)
+    
+    # Create new filename with suffix
+    new_filename = f"{name}{suffix}{ext}"
+    new_filepath = os.path.join(directory, new_filename)
+    
+    # Save the file
+    try:
+        bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=False)
+        print(f"File saved as: {new_filepath}")
+        return new_filepath
+    except Exception as e:
+        print(f"ERROR: Failed to save file: {e}")

@@ -1,6 +1,6 @@
 import bpy
 import os
-from .. import utils
+from . import utils
 
 def missing_files_report():
     """

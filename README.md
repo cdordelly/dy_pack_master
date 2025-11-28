@@ -44,8 +44,24 @@ Need to send custom add-ons to the farm?
 1.  Zip the `dy_pack_master` folder.
 2.  Go to Preferences > Add-ons > Install... and select the zip file.
 
+## Python Scripting
+
+You can use the individual operators in your own Python scripts or automation workflows:
+
+```python
+import bpy
+
+# Call operators directly
+bpy.ops.dy_pack_master.pack_project()
+bpy.ops.dy_pack_master.localize_vdb()
+bpy.ops.dy_pack_master.localize_references()
+bpy.ops.dy_pack_master.localize_mesh_cache()
+bpy.ops.dy_pack_master.localize_ocio()
+bpy.ops.dy_pack_master.missing_files_report()
+```
+
 ## Support
 
 If you find this tool useful, consider supporting its development!
 
-[**☕ Buy me a coffee / Donate**](https://your-donation-link-here)
+[**☕ Buy me a coffee / Donate**](https://www.paypal.com/paypalme/cdordelly)

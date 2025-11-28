@@ -2,7 +2,7 @@ import bpy
 import os
 import glob
 import re
-from .. import utils
+from . import utils
 
 def localize_vdb():
     """
