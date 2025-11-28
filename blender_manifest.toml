@@ -7,9 +7,8 @@ tagline = "Make Blender projects portable for render farms by localizing assets,
 maintainer = "Carlos Dordelly - @cdordelly"
 type = "add-on"
 website = "https://github.com/cdordelly/dy_pack_master"
+license = ["SPDX:GPL-3.0-or-later"]
 blender_version_min = "4.2.0"
 
 [permissions]
 files = "All" # We need full file access to copy assets anywhere
-network = []
-clipboard = []
