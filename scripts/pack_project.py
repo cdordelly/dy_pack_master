@@ -6,6 +6,9 @@ from .modules import render_settings
 from .modules import report
 from .modules import utils
 
+# Get the addon package name for preferences lookup
+ADDON_NAME = __package__.rsplit('.', 1)[0] if '.' in __package__ else __package__
+
 def pack_project():
     """
     Main packing function that executes all localization steps:
@@ -18,7 +21,7 @@ def pack_project():
     7. Save blend with suffix from preferences
     """
     # Get preferences
-    prefs = bpy.context.preferences.addons['dy_pack_master'].preferences
+    prefs = bpy.context.preferences.addons[ADDON_NAME].preferences
     blend_suffix = prefs.blend_suffix
     
     print("=" * 50)
@@ -66,8 +69,10 @@ class DY_PACK_MASTER_OT_pack_project(bpy.types.Operator):
     
     @classmethod
     def description(cls, context, properties):
-        prefs = context.preferences.addons['dy_pack_master'].preferences
-        return f"One-click: Pack resources, localize assets, and save as blend file with '{prefs.blend_suffix}' suffix"
+        prefs = context.preferences.addons.get(ADDON_NAME)
+        if prefs:
+            return f"One-click: Pack resources, localize assets, and save as blend file with '{prefs.preferences.blend_suffix}' suffix"
+        return "One-click: Pack resources, localize assets, and save blend file"
 
     def execute(self, context):
         result, new_filepath = pack_project()

@@ -87,6 +87,8 @@ class DY_PACK_MASTER_OT_localize_ocio(bpy.types.Operator):
     bl_description = "Copy OCIO config to //ocio and create setup scripts"
 
     def execute(self, context):
+        # Show success message
+        self.report({'INFO'}, "OCIO localized successfully")
         return localize_ocio()
 
 def register():

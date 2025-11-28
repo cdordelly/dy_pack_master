@@ -4,16 +4,13 @@ from . import utils
 
 def missing_files_report():
     """
-    Iterates through all external files (images, libraries, cache files) in the
-    current blend file, checks if they exist on disk, and generates a report
-    of any missing files.
+    Checks for missing files and generates a report if any are found.
     """
     base_path = utils.get_blend_dir()
     if not base_path:
         print("ERROR: Blend file must be saved before checking for missing files.")
         return {'CANCELLED'}
 
-    report_path = os.path.join(base_path, "missing_files_report.txt")
     missing_files = []
 
     def check_file(filepath, name, type_label):
@@ -45,7 +42,9 @@ def missing_files_report():
     for cache in bpy.data.cache_files:
         check_file(cache.filepath, cache.name, "Cache")
 
+    # Only create report if there are missing files
     if missing_files:
+        report_path = os.path.join(base_path, "missing_files_report.txt")
         try:
             with open(report_path, "w") as f:
                 f.write("Missing Files Report\n")
@@ -55,12 +54,10 @@ def missing_files_report():
             
             print(f"FOUND {len(missing_files)} missing files.")
             print(f"Report generated: {report_path}")
-            self.report({'WARNING'}, f"Found {len(missing_files)} missing files! See report.")
         except OSError as e:
             print(f"ERROR: Failed to write report: {e}")
     else:
         print("No missing files found.")
-        self.report({'INFO'}, "No missing files found.")
 
     return {'FINISHED'}
 
@@ -71,15 +68,6 @@ class DY_PACK_MASTER_OT_missing_files_report(bpy.types.Operator):
     bl_description = "Check for missing external files and generate a report"
 
     def execute(self, context):
-        # We need to pass 'self' to the function if we want it to report to UI
-        # But for now, I'll just adapt the function to use self.report if I move logic inside execute
-        # Or I can just print. The original script printed.
-        # Let's keep it simple and just call the function, but I'll modify the function slightly to accept 'self' for reporting if needed, 
-        # or just rely on print.
-        
-        # Actually, I'll inline the logic into execute or make the function a method of the operator?
-        # No, keeping it separate is cleaner for the module structure.
-        # I'll just call it.
         return missing_files_report_wrapper(self)
 
 def missing_files_report_wrapper(operator):

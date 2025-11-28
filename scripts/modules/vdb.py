@@ -15,16 +15,26 @@ def localize_vdb():
         print("ERROR: Blend file must be saved before localizing VDB files.")
         return {'CANCELLED'}
 
+    # Check if there are any VDB volumes with filepaths to process
+    volumes_to_process = []
+    for volume in bpy.data.volumes:
+        if not volume.filepath:
+            continue
+        volumes_to_process.append(volume)
+    
+    # Early exit if no VDB files to localize
+    if not volumes_to_process:
+        print("No VDB files found to localize.")
+        return {'FINISHED'}
+
+    # Only create directory if we have VDB files to process
     vdb_dir = os.path.join(base_path, "vdb")
     utils.ensure_directory(vdb_dir)
     
     processed_files = set()
     count = 0
 
-    for volume in bpy.data.volumes:
-        if not volume.filepath:
-            continue
-
+    for volume in volumes_to_process:
         abs_path = utils.get_absolute_path(volume.filepath)
         abs_path = os.path.normpath(abs_path)
         

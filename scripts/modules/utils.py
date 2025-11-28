@@ -61,7 +61,7 @@ def save_blend_with_suffix(suffix):
     
     # Save the file
     try:
-        bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=False)
+        bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=True)
         print(f"File saved as: {new_filepath}")
         return new_filepath
     except Exception as e:

@@ -14,6 +14,22 @@ def localize_references():
         print("ERROR: Blend file must be saved before localizing references.")
         return {'CANCELLED'}
 
+    # Check if there are any libraries that need processing
+    libs_to_process = []
+    for lib in bpy.data.libraries:
+        if not lib.filepath:
+            continue
+        normalized_path = lib.filepath.replace('\\', '/')
+        if normalized_path.startswith("//references"):
+            continue
+        libs_to_process.append(lib)
+    
+    # Early exit if no references to localize
+    if not libs_to_process:
+        print("No external references found to localize.")
+        return {'FINISHED'}
+
+    # Only create directory if we have references to process
     refs_dir = os.path.join(base_path, "references")
     utils.ensure_directory(refs_dir)
 
@@ -26,14 +42,7 @@ def localize_references():
     report_lines.append(f"Source Blend: {bpy.data.filepath}")
     report_lines.append("")
 
-    for lib in bpy.data.libraries:
-        if not lib.filepath:
-            continue
-            
-        normalized_path = lib.filepath.replace('\\', '/')
-        if normalized_path.startswith("//references"):
-            continue
-
+    for lib in libs_to_process:
         source_abs_path = utils.get_absolute_path(lib.filepath)
         source_abs_path = os.path.normpath(source_abs_path)
 
