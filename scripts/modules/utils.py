@@ -6,6 +6,33 @@ def get_absolute_path(path):
     """Convert a Blender path (//) to an absolute path."""
     return os.path.abspath(bpy.path.abspath(path)).replace('\\', '/')
 
+def convert_all_paths_to_absolute():
+    """
+    Convert all asset paths to absolute before saving to new location.
+    This ensures all assets can be found after the blend file moves.
+    """
+    # Import here to avoid circular imports
+    from . import mesh_sequence_cache
+    from . import vdb
+    from . import references
+    
+    print("  - Converting mesh cache paths...")
+    mesh_sequence_cache.set_absolute_path_mesh_cache()
+    
+    print("  - Converting VDB paths...")
+    vdb.set_absolute_path_vdb()
+    
+    print("  - Converting reference paths...")
+    references.set_absolute_path_references()
+    
+    # Handle images that are not packed
+    print("  - Converting image paths...")
+    for img in bpy.data.images:
+        if img.source in {'FILE', 'SEQUENCE'} and not img.packed_file and img.filepath:
+            abs_path = get_absolute_path(img.filepath)
+            if img.filepath != abs_path:
+                img.filepath = abs_path
+
 def ensure_directory(path):
     """Ensure a directory exists."""
     if not os.path.exists(path):
@@ -39,7 +66,7 @@ def get_blend_dir():
         return None
     return os.path.dirname(bpy.data.filepath)
 
-def save_blend_with_suffix(suffix):
+def save_blend_with_suffix(suffix, copy=True):
     """
     Saves the current blend file with a suffix added to the filename.
     Example: scene.blend -> scene_collect.blend
@@ -61,43 +88,20 @@ def save_blend_with_suffix(suffix):
     
     # Save the file
     try:
-        bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=False)
+        bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=copy)
         print(f"File saved as: {new_filepath}")
         return new_filepath
     except Exception as e:
         print(f"ERROR: Failed to save file: {e}")
 
-def convert_all_paths_to_absolute():
-    """
-    Convert all asset paths to absolute before saving to new location.
-    This ensures all assets can be found after the blend file moves.
-    """
-    # Import here to avoid circular imports
-    from . import mesh_sequence_cache
-    from . import vdb
-    from . import references
-    
-    print("  - Converting mesh cache paths...")
-    mesh_sequence_cache.set_absolute_path_mesh_cache()
-    
-    print("  - Converting VDB paths...")
-    vdb.set_absolute_path_vdb()
-    
-    print("  - Converting reference paths...")
-    references.set_absolute_path_references()
-    
-    # Handle images that are not packed
-    print("  - Converting image paths...")
-    for img in bpy.data.images:
-        if img.source in {'FILE', 'SEQUENCE'} and not img.packed_file and img.filepath:
-            abs_path = get_absolute_path(img.filepath)
-            if img.filepath != abs_path:
-                img.filepath = abs_path
-
-def save_blend_to_pack_directory(suffix):
+def save_blend_to_pack_directory(suffix, copy=True):
     """
     Creates a new directory with the packed name and saves the blend file there.
     Example: "scn010.blend" with suffix "_packed" -> "scn010_packed/scn010_packed.blend"
+    
+    Args:
+        suffix: String to append to directory and filename
+        copy: If True, saves without opening the new file; if False, opens the new file
     
     Returns the new filepath or None on failure.
     """
@@ -123,7 +127,7 @@ def save_blend_to_pack_directory(suffix):
     
     # Save the file to new location
     try:
-        bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=False)
+        bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=copy)
         print(f"  - Blend file saved to: {new_filepath}")
         return new_filepath
     except Exception as e:

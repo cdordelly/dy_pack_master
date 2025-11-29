@@ -42,7 +42,7 @@ def pack_project():
     
     # Step 2: Create pack directory and save blend file there
     print(f"\n[2/9] Creating pack directory and saving blend file...")
-    new_filepath = utils.save_blend_to_pack_directory(blend_suffix)
+    new_filepath = utils.save_blend_to_pack_directory(blend_suffix, copy=prefs.keep_file_open)
     if not new_filepath:
         print("ERROR: Failed to create pack directory and save blend file.")
         return {'CANCELLED'}, None
