@@ -2,9 +2,9 @@ import bpy
 import os
 from . import utils
 
-def missing_files_report(operator=None):
+def missing_files_report(operator=None, base_path=None):
     """Checks for missing files and generates a report if any are found."""
-    base_path = utils.get_blend_dir()
+    base_path = base_path or utils.get_blend_dir()
     if not base_path:
         if operator:
             operator.report({'ERROR'}, "Save blend file first!")

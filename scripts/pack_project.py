@@ -47,7 +47,7 @@ def pack_project():
     render_settings.set_relative_output()
     
     print("\n[8/9] Generating missing files report...")
-    report.missing_files_report()
+    report.missing_files_report(base_path=new_filepath.replace('\\', '/').rsplit('/', 1)[0])
     
     print("\n[9/9] Saving final packed blend file...")
     bpy.ops.wm.save_mainfile()
