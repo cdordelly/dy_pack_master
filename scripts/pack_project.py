@@ -12,14 +12,22 @@ ADDON_NAME = __package__.rsplit('.', 1)[0] if '.' in __package__ else __package_
 def pack_project():
     """
     Main packing function that executes all localization steps:
-    1. Pack blend file resources
-    2. Localize mesh caches (ABC/USD)
-    3. Localize references
-    4. Localize VDBs
-    5. Set relative output path
-    6. Generate missing files report
-    7. Save blend with suffix from preferences
+    
+    1. Convert all asset paths to absolute
+    2. Create pack directory and save blend file there
+    3. Pack blend file resources
+    4. Localize mesh caches (ABC/USD)
+    5. Localize references
+    6. Localize VDBs
+    7. Set relative output path
+    8. Generate missing files report
+    9. Final save
     """
+    # Validate blend file is saved
+    if not bpy.data.filepath:
+        print("ERROR: Blend file must be saved before packing.")
+        return {'CANCELLED'}, None
+    
     # Get preferences
     prefs = bpy.context.preferences.addons[ADDON_NAME].preferences
     blend_suffix = prefs.blend_suffix
@@ -28,36 +36,48 @@ def pack_project():
     print("dy Pack Master - Pack Project")
     print("=" * 50)
     
-    # 1. Pack all blend file resources
-    print("\n[1/7] Packing blend file resources...")
+    # Step 1: Convert all asset paths to absolute
+    print("\n[1/9] Converting asset paths to absolute...")
+    utils.convert_all_paths_to_absolute()
+    
+    # Step 2: Create pack directory and save blend file there
+    print(f"\n[2/9] Creating pack directory and saving blend file...")
+    new_filepath = utils.save_blend_to_pack_directory(blend_suffix)
+    if not new_filepath:
+        print("ERROR: Failed to create pack directory and save blend file.")
+        return {'CANCELLED'}, None
+    
+    # Step 3: Pack all blend file resources
+    print("\n[3/9] Packing blend file resources...")
     bpy.ops.file.pack_all()
     
-    # 2. Localize Mesh Caches (ABC/USD)
-    print("\n[2/7] Localizing Mesh Caches (ABC/USD)...")
+    # Step 4: Localize Mesh Caches (ABC/USD)
+    print("\n[4/9] Localizing Mesh Caches (ABC/USD)...")
     mesh_sequence_cache.localize_mesh_cache()
     
-    # 3. Localize References
-    print("\n[3/7] Localizing References...")
+    # Step 5: Localize References
+    print("\n[5/9] Localizing References...")
     references.localize_references()
     
-    # 4. Localize VDBs
-    print("\n[4/7] Localizing VDBs...")
+    # Step 6: Localize VDBs
+    print("\n[6/9] Localizing VDBs...")
     vdb.localize_vdb()
     
-    # 5. Set Relative Output Path
-    print("\n[5/7] Setting relative output path...")
+    # Step 7: Set Relative Output Path
+    print("\n[7/9] Setting relative output path...")
     render_settings.set_relative_output()
     
-    # 6. Generate Missing Files Report
-    print("\n[6/7] Generating missing files report...")
+    # Step 8: Generate Missing Files Report
+    print("\n[8/9] Generating missing files report...")
     report.missing_files_report()
     
-    # 7. Save with suffix from preferences
-    print(f"\n[7/7] Saving blend file with '{blend_suffix}' suffix...")
-    new_filepath = utils.save_blend_with_suffix(blend_suffix)
+    # Step 9: Final save
+    print("\n[9/9] Saving final packed blend file...")
+    bpy.ops.wm.save_mainfile()
     
     print("\n" + "=" * 50)
     print("Pack Project Complete!")
+    print(f"Packed project: {new_filepath}")
     print("=" * 50)
     
     return {'FINISHED'}, new_filepath
@@ -71,7 +91,8 @@ class DY_PACK_MASTER_OT_pack_project(bpy.types.Operator):
     def description(cls, context, properties):
         prefs = context.preferences.addons.get(ADDON_NAME)
         if prefs:
-            return f"One-click: Pack resources, localize assets, and save as blend file with '{prefs.preferences.blend_suffix}' suffix"
+            suffix = prefs.preferences.blend_suffix
+            return f"One-click: Convert paths, create '{suffix}' folder, pack resources, and localize all assets"
         return "One-click: Pack resources, localize assets, and save blend file"
 
     def execute(self, context):
@@ -81,12 +102,17 @@ class DY_PACK_MASTER_OT_pack_project(bpy.types.Operator):
         if new_filepath:
             self.report({'INFO'}, f"Project packed: {new_filepath}")
         else:
-            self.report({'INFO'}, "Project packed successfully")
+            self.report({'ERROR'}, "Pack project failed")
         
         return result
 
+# -------------------------------------------------------------------------
+# Registration
+# -------------------------------------------------------------------------
+
 def register():
     bpy.utils.register_class(DY_PACK_MASTER_OT_pack_project)
+
 
 def unregister():
     bpy.utils.unregister_class(DY_PACK_MASTER_OT_pack_project)
