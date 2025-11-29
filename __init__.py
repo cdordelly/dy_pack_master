@@ -11,14 +11,12 @@ bl_info = {
 }
 
 import bpy
-import bpy
 from .scripts import ui
 from .scripts import modules
 from .scripts import pack_project
 
+# Force UI refresh by toggling region redraw
 def update_menu_location(self, context):
-    """Update function called when menu_location preference changes"""
-    # Force UI refresh by toggling region redraw
     for window in context.window_manager.windows:
         for area in window.screen.areas:
             if area.type == 'VIEW_3D':
@@ -58,9 +56,7 @@ class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
         
         layout.label(text="UI Settings", icon='PREFERENCES')
         layout.prop(self, "menu_location")
-        
         layout.separator()
-        
         layout.label(text="Packing Settings", icon='FILE_BLEND')
         layout.prop(self, "blend_suffix")
         layout.prop(self, "keep_file_open")

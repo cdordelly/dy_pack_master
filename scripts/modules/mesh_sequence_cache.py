@@ -3,9 +3,7 @@ import os
 from . import utils
 
 def set_absolute_path_mesh_cache():
-    """
-    Converts the filepath of all Mesh Sequence Cache modifiers (Alembic/USD) to an absolute path.
-    """
+    """Converts all Mesh Sequence Cache modifier filepaths to absolute paths."""
     caches_to_process = []
     
     for obj in bpy.data.objects:
@@ -15,15 +13,9 @@ def set_absolute_path_mesh_cache():
                 if not cache_file:
                     continue
                 
-                # Convert to absolute path
                 abs_path = utils.get_absolute_path(cache_file.filepath)
                 if cache_file.filepath != abs_path:
                     cache_file.filepath = abs_path
-                    try:
-                        # Some cache files might need a reload or update
-                        pass
-                    except:
-                        pass
                 
                 if cache_file not in caches_to_process:
                     caches_to_process.append(cache_file)
@@ -31,10 +23,7 @@ def set_absolute_path_mesh_cache():
     return caches_to_process
 
 def localize_mesh_cache():
-    """
-    Iterates through all objects, finds Mesh Sequence Cache modifiers (Alembic/USD),
-    copies the referenced files to local 'abc' or 'usd' folders, and relinks them relatively.
-    """
+    """Copies Alembic/USD files to local folders and relinks them relatively."""
     base_path = utils.get_blend_dir()
     if not base_path:
         print("ERROR: Blend file must be saved before localizing cache files.")
@@ -47,10 +36,7 @@ def localize_mesh_cache():
         for mod in obj.modifiers:
             if mod.type == 'MESH_SEQUENCE_CACHE':
                 cache_file = mod.cache_file
-                if not cache_file:
-                    continue
-
-                if cache_file in processed_caches:
+                if not cache_file or cache_file in processed_caches:
                     continue
                 
                 current_filepath = utils.get_absolute_path(cache_file.filepath)
@@ -59,9 +45,8 @@ def localize_mesh_cache():
                     print(f"WARNING: Source file not found: {current_filepath} (Object: {obj.name})")
                     continue
                 
-                # Determine type and destination
                 ext = os.path.splitext(current_filepath)[1].lower()
-                if ext in {'.abc'}:
+                if ext == '.abc':
                     subfolder = "abc"
                 elif ext in {'.usd', '.usda', '.usdc', '.usdz'}:
                     subfolder = "usd"
@@ -72,12 +57,10 @@ def localize_mesh_cache():
                 dest_dir = os.path.join(base_path, subfolder)
                 utils.ensure_directory(dest_dir)
 
-                # Copy file
                 dest_path = utils.copy_file(current_filepath, dest_dir)
                 if not dest_path:
                     continue
 
-                # Relink
                 filename = os.path.basename(dest_path)
                 relative_path = f"//{subfolder}/{filename}"
                 

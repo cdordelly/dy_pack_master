@@ -3,18 +3,12 @@ import os
 import shutil
 
 def get_absolute_path(path):
-    """Convert a Blender path (//) to an absolute path."""
+    """Convert a Blender path (//) to an absolute path with forward slashes."""
     return os.path.abspath(bpy.path.abspath(path)).replace('\\', '/')
 
 def convert_all_paths_to_absolute():
-    """
-    Convert all asset paths to absolute before saving to new location.
-    This ensures all assets can be found after the blend file moves.
-    """
-    # Import here to avoid circular imports
-    from . import mesh_sequence_cache
-    from . import vdb
-    from . import references
+    """Convert all asset paths to absolute before saving to new location."""
+    from . import mesh_sequence_cache, vdb, references
     
     print("  - Converting mesh cache paths...")
     mesh_sequence_cache.set_absolute_path_mesh_cache()
@@ -25,7 +19,6 @@ def convert_all_paths_to_absolute():
     print("  - Converting reference paths...")
     references.set_absolute_path_references()
     
-    # Handle images that are not packed
     print("  - Converting image paths...")
     for img in bpy.data.images:
         if img.source in {'FILE', 'SEQUENCE'} and not img.packed_file and img.filepath:
@@ -49,8 +42,6 @@ def copy_file(src, dest_dir, overwrite=False):
     dest_path = os.path.join(dest_dir, filename)
     
     if os.path.exists(dest_path) and not overwrite:
-        # Check if it's the same file to avoid redundant copy
-        # For now, simple existence check is enough as per requirements
         return dest_path
         
     try:
@@ -67,65 +58,48 @@ def get_blend_dir():
     return os.path.dirname(bpy.data.filepath)
 
 def save_blend_with_suffix(suffix, copy=True):
-    """
-    Saves the current blend file with a suffix added to the filename.
-    Example: scene.blend -> scene_collect.blend
-    """
+    """Save current blend file with a suffix. Example: scene.blend -> scene_packed.blend"""
     current_filepath = bpy.data.filepath
-    
     if not current_filepath:
-        print("ERROR: Blend file must be saved first before using 'Save As' with suffix.")
-        return
+        print("ERROR: Blend file must be saved first.")
+        return None
     
-    # Split the path into directory, name, and extension
     directory = os.path.dirname(current_filepath)
     filename = os.path.basename(current_filepath)
     name, ext = os.path.splitext(filename)
     
-    # Create new filename with suffix
     new_filename = f"{name}{suffix}{ext}"
     new_filepath = os.path.join(directory, new_filename)
     
-    # Save the file
     try:
         bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=copy)
         print(f"File saved as: {new_filepath}")
         return new_filepath
     except Exception as e:
         print(f"ERROR: Failed to save file: {e}")
+        return None
 
 def save_blend_to_pack_directory(suffix, copy=True):
     """
-    Creates a new directory with the packed name and saves the blend file there.
-    Example: "scn010.blend" with suffix "_packed" -> "scn010_packed/scn010_packed.blend"
-    
-    Args:
-        suffix: String to append to directory and filename
-        copy: If True, saves without opening the new file; if False, opens the new file
-    
-    Returns the new filepath or None on failure.
+    Create a pack directory and save blend file there.
+    Example: "scn010.blend" -> "scn010_packed/scn010_packed.blend"
     """
     current_filepath = bpy.data.filepath
-    
     if not current_filepath:
         print("ERROR: Blend file must be saved first.")
         return None
     
-    # Get current file info
     directory = os.path.dirname(current_filepath)
     filename = os.path.basename(current_filepath)
     name, ext = os.path.splitext(filename)
     
-    # Create new directory and file names
     packed_name = f"{name}{suffix}"
     packed_dir = os.path.join(directory, packed_name)
     new_filepath = os.path.join(packed_dir, f"{packed_name}{ext}")
     
-    # Create the pack directory
     ensure_directory(packed_dir)
     print(f"  - Created directory: {packed_dir}")
     
-    # Save the file to new location
     try:
         bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=copy)
         print(f"  - Blend file saved to: {new_filepath}")
