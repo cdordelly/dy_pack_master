@@ -2,6 +2,34 @@ import bpy
 import os
 from . import utils
 
+def set_absolute_path_mesh_cache():
+    """
+    Converts the filepath of all Mesh Sequence Cache modifiers (Alembic/USD) to an absolute path.
+    """
+    caches_to_process = []
+    
+    for obj in bpy.data.objects:
+        for mod in obj.modifiers:
+            if mod.type == 'MESH_SEQUENCE_CACHE':
+                cache_file = mod.cache_file
+                if not cache_file:
+                    continue
+                
+                # Convert to absolute path
+                abs_path = utils.get_absolute_path(cache_file.filepath)
+                if cache_file.filepath != abs_path:
+                    cache_file.filepath = abs_path
+                    try:
+                        # Some cache files might need a reload or update
+                        pass
+                    except:
+                        pass
+                
+                if cache_file not in caches_to_process:
+                    caches_to_process.append(cache_file)
+    
+    return caches_to_process
+
 def localize_mesh_cache():
     """
     Iterates through all objects, finds Mesh Sequence Cache modifiers (Alembic/USD),

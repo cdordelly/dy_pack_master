@@ -4,6 +4,25 @@ import glob
 import re
 from . import utils
 
+def set_absolute_path_vdb():
+    """
+    Converts the filepath of all VDB volumes to an absolute path.
+    Works for both static files and sequences.
+    """
+    volumes_to_process = []
+    for volume in bpy.data.volumes:
+        if not volume.filepath:
+            continue
+            
+        # Convert to absolute path
+        abs_path = utils.get_absolute_path(volume.filepath)
+        if volume.filepath != abs_path:
+            volume.filepath = abs_path
+            
+        volumes_to_process.append(volume)
+    
+    return volumes_to_process
+
 def localize_vdb():
     """
     Iterates through all volume objects. If a volume is a sequence, it finds all 

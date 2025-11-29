@@ -3,6 +3,28 @@ import os
 import shutil
 from . import utils
 
+def set_absolute_path_references():
+    """
+    Converts the filepath of all linked libraries to an absolute path.
+    """
+    libraries_to_process = []
+    for lib in bpy.data.libraries:
+        if not lib.filepath:
+            continue
+            
+        # Convert to absolute path
+        abs_path = utils.get_absolute_path(lib.filepath)
+        if lib.filepath != abs_path:
+            lib.filepath = abs_path
+            try:
+                lib.reload()
+            except:
+                pass # If reload fails, just keep the path set
+            
+        libraries_to_process.append(lib)
+    
+    return libraries_to_process
+
 def localize_references():
     """
     Iterates through all linked libraries, copies the referenced blend files to a 
