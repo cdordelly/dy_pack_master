@@ -70,7 +70,7 @@ class DY_PACK_MASTER_OT_refresh_addons(bpy.types.Operator):
 class DY_PACK_MASTER_OT_localize_addons(bpy.types.Operator):
     """Copy selected add-ons to the local 'addons' folder"""
     bl_idname = "dy_pack_master.localize_addons"
-    bl_label = "Localize Selected Add-ons"
+    bl_label = "Localize Selected"
 
     def execute(self, context):
         base_path = utils.get_blend_dir()
@@ -131,7 +131,7 @@ class DY_PACK_MASTER_UL_addons_list(bpy.types.UIList):
 class DY_PACK_MASTER_OT_addons_tool(bpy.types.Operator):
     """Open the Addon Localization Tool."""
     bl_idname = "dy_pack_master.addons_tool"
-    bl_label = "Localize Add-ons Tool"
+    bl_label = "Localize Add-ons"
     bl_options = {'REGISTER', 'UNDO'}
     
     def invoke(self, context, event):
@@ -141,19 +141,17 @@ class DY_PACK_MASTER_OT_addons_tool(bpy.types.Operator):
         layout = self.layout
         scene = context.scene
         
-        layout.label(text="Select Add-ons to Localize", icon='PREFERENCES')
-        
         row = layout.row()
         row.template_list("DY_PACK_MASTER_UL_addons_list", "", scene, "dy_pack_master_addon_list", scene, "dy_pack_master_addon_index", rows=10)
         
-        row = layout.row()
-        row.operator("dy_pack_master.localize_addons", icon='EXPORT')
-        
-        row = layout.row()
-        row.operator("dy_pack_master.refresh_addons", icon='FILE_REFRESH')
+        row = layout.row(align=True)
+        #row.operator("dy_pack_master.localize_addons", icon='EXPORT', text="Localize Selected")
+        #row.operator("dy_pack_master.refresh_addons", icon='FILE_REFRESH', text="")
     
     def execute(self, context):
-        return {'FINISHED'}
+        # Execute localization when OK is pressed
+        result = bpy.ops.dy_pack_master.localize_addons()
+        return result
 
 classes = (
     DY_PACK_MASTER_Item,

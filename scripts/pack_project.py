@@ -31,6 +31,9 @@ def pack_project():
     # Get preferences
     prefs = bpy.context.preferences.addons[ADDON_NAME].preferences
     blend_suffix = prefs.blend_suffix
+    # Ensure suffix starts with underscore
+    if not blend_suffix.startswith('_'):
+        blend_suffix = '_' + blend_suffix
     
     print("=" * 50)
     print("dy Pack Master - Pack Project")
