@@ -135,6 +135,11 @@ class DY_PACK_MASTER_OT_addons_tool(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     
     def invoke(self, context, event):
+        # Check if blend file is saved BEFORE showing dialog
+        if not bpy.data.filepath:
+            self.report({'ERROR'}, "Save blend file first!")
+            return {'CANCELLED'}
+        
         return context.window_manager.invoke_props_dialog(self, width=500)
     
     def draw(self, context):

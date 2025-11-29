@@ -87,9 +87,17 @@ class DY_PACK_MASTER_OT_localize_ocio(bpy.types.Operator):
     bl_description = "Copy OCIO config to //ocio and create setup scripts"
 
     def execute(self, context):
-        # Show success message
-        self.report({'INFO'}, "OCIO localized successfully")
-        return localize_ocio()
+        # Check if blend file is saved
+        if not bpy.data.filepath:
+            self.report({'ERROR'}, "Save blend file first!")
+            return {'CANCELLED'}
+        
+        result = localize_ocio()
+        
+        if result == {'FINISHED'}:
+            self.report({'INFO'}, "OCIO localized successfully")
+        
+        return result
 
 def register():
     bpy.utils.register_class(DY_PACK_MASTER_OT_localize_ocio)

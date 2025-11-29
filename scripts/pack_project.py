@@ -38,6 +38,10 @@ def pack_project():
     print("=" * 50)
     print("dy Pack Master - Pack Project")
     print("=" * 50)
+
+    # Step 0: Save current blend file
+    print("\n[0/9] Saving current blend file...")
+    bpy.ops.wm.save_mainfile()
     
     # Step 1: Convert all asset paths to absolute
     print("\n[1/9] Converting asset paths to absolute...")
