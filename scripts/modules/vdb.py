@@ -23,13 +23,13 @@ def set_absolute_path_vdb():
     
     return volumes_to_process
 
-def localize_vdb():
+def localize_vdb(base_path=None):
     """
     Iterates through all volume objects. If a volume is a sequence, it finds all 
     matching files using a regex pattern and copies them. Otherwise, it copies the single VDB file. 
     Finally, it relinks to relative paths.
     """
-    base_path = utils.get_blend_dir()
+    base_path = base_path or utils.get_blend_dir()
     if not base_path:
         print("ERROR: Blend file must be saved before localizing VDB files.")
         return {'CANCELLED'}

@@ -1,6 +1,8 @@
 import bpy
 import os
 import shutil
+import sys
+from contextlib import contextmanager
 
 def get_absolute_path(path):
     """Convert a Blender path (//) to an absolute path with forward slashes."""
@@ -107,3 +109,25 @@ def save_blend_to_pack_directory(suffix, copy=True):
     except Exception as e:
         print(f"ERROR: Failed to save file: {e}")
         return None
+
+@contextmanager
+def log_to_file(log_path):
+    """Context manager to log prints to both console and file."""
+    class Logger:
+        def __init__(self, log_file):
+            self.terminal = sys.stdout
+            self.log = log_file
+        def write(self, message):
+            self.terminal.write(message)
+            self.log.write(message)
+        def flush(self):
+            self.terminal.flush()
+            self.log.flush()
+    
+    with open(log_path, "w") as f:
+        old_stdout = sys.stdout
+        sys.stdout = Logger(f)
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout

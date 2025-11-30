@@ -22,9 +22,9 @@ def set_absolute_path_mesh_cache():
     
     return caches_to_process
 
-def localize_mesh_cache():
+def localize_mesh_cache(base_path=None):
     """Copies Alembic/USD files to local folders and relinks them relatively."""
-    base_path = utils.get_blend_dir()
+    base_path = base_path or utils.get_blend_dir()
     if not base_path:
         print("ERROR: Blend file must be saved before localizing cache files.")
         return {'CANCELLED'}

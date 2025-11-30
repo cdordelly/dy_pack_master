@@ -25,13 +25,13 @@ def set_absolute_path_references():
     
     return libraries_to_process
 
-def localize_references():
+def localize_references(base_path=None):
     """
     Iterates through all linked libraries, copies the referenced blend files to a 
     local 'references' folder, handles duplicate filenames by renaming, relinks 
     the libraries to the new relative paths, and generates a report.
     """
-    base_path = utils.get_blend_dir()
+    base_path = base_path or utils.get_blend_dir()
     if not base_path:
         print("ERROR: Blend file must be saved before localizing references.")
         return {'CANCELLED'}
