@@ -18,24 +18,28 @@ def pack_project():
     if not blend_suffix.startswith('_'):
         blend_suffix = '_' + blend_suffix
     
+    # Store original filepath to potentially reopen later
+    original_filepath = bpy.data.filepath
+    
     # Determine pack directory and log path
     directory = os.path.dirname(bpy.data.filepath)
     filename = os.path.basename(bpy.data.filepath)
     name = os.path.splitext(filename)[0]
     packed_dir = os.path.join(directory, f"{name}{blend_suffix}")
     log_path = os.path.join(packed_dir, "pack_log.txt")
+    new_filepath = os.path.join(packed_dir, f"{name}{blend_suffix}.blend")
     
     # Create pack directory first (needed for log file)
     utils.ensure_directory(packed_dir)
     
     with utils.log_to_file(log_path):
-         # Log header with system info
+        # Log header with system info
         print("Pack Log - dy Pack Master")
         print("=" * 50)
         print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"OS: {platform.system()} {platform.release()}")
         print(f"Blender: {bpy.app.version_string}")
-        print(f"Source File: {bpy.data.filepath}")
+        print(f"Source File: {original_filepath}")
         print(f"Pack Directory: {packed_dir}")
         print(f"OCIO Config: {os.environ.get('OCIO', 'Default (Blender built-in)')}")
         print("=" * 50)
@@ -51,10 +55,12 @@ def pack_project():
         print("\n[1/9] Converting asset paths to absolute...")
         utils.convert_all_paths_to_absolute()
         
-        print(f"\n[2/9] Creating pack directory and saving blend file...")
-        new_filepath = utils.save_blend_to_pack_directory(blend_suffix, copy=prefs.keep_file_open)
-        if not new_filepath:
-            print("ERROR: Failed to create pack directory and save blend file.")
+        print("\n[2/9] Saving to pack directory (switching to packed file)...")
+        try:
+            bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=False)
+            print(f"  - Now working in: {new_filepath}")
+        except Exception as e:
+            print(f"ERROR: Failed to save file: {e}")
             return {'CANCELLED'}, None
         
         print("\n[3/9] Packing blend file resources...")
@@ -82,6 +88,11 @@ def pack_project():
         print("Pack Project Complete!")
         print(f"Packed project: {new_filepath}")
         print("=" * 50)
+    
+    # Optionally reopen original file
+    if prefs.reopen_original_file:
+        print(f"\nReopening original file: {original_filepath}")
+        bpy.ops.wm.open_mainfile(filepath=original_filepath)
     
     return {'FINISHED'}, new_filepath
 

@@ -45,9 +45,9 @@ class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
         default="_packed",
     )
 
-    keep_file_open: bpy.props.BoolProperty(
-        name="Keep current file open after pack",
-        description="Keep the current blend file open after completing the pack operation, otherwise packed file will be loaded.",
+    reopen_original_file: bpy.props.BoolProperty(
+        name="Reopen original file after pack",
+        description="Reopen the original blend file after packing",
         default=True,
     )
 
@@ -59,7 +59,7 @@ class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
         layout.separator()
         layout.label(text="Packing Settings", icon='FILE_BLEND')
         layout.prop(self, "blend_suffix")
-        layout.prop(self, "keep_file_open")
+        layout.prop(self, "reopen_original_file")
 
 def register():
     bpy.utils.register_class(DY_PACK_MASTER_Preferences)
