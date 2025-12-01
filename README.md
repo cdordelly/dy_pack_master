@@ -144,6 +144,7 @@ bpy.ops.dy_pack_master.refresh_addons()
 
 After packing, your project will have a structure like:
 
+```
 scene_packed/
 ├── scene_packed.blend
 ├── pack_log.txt
@@ -158,6 +159,7 @@ scene_packed/
 │   ├── set_OCIO_env.bat
 │   └── set_OCIO_env.sh
 └── addons/             # Zipped add-ons (if selected)
+```
 
 ## Support
 
