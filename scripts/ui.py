@@ -66,8 +66,9 @@ class DY_PACK_MASTER_PT_main(bpy.types.Panel):
         
         if scene.dy_pack_master_expand_tools:
             col = box.column(align=True)
+            col.operator("dy_pack_master.custom_pack_project", icon='FILEBROWSER')
             col.operator("dy_pack_master.localize_ocio", icon='COLOR', text="Localize OCIO")
-            col.operator("dy_pack_master.missing_files_report", icon='ERROR', text="Missing Files Report")
+            col.operator("dy_pack_master.missing_files_report", icon='ERROR', text="Missing Files Report")            
 
 # -------------------------------------------------------------------------
 # File > Export Menu Function
@@ -85,6 +86,7 @@ def menu_func_export(self, context):
     layout.operator("dy_pack_master.addons_tool", text="Localize Add-ons", icon='PREFERENCES')
     layout.operator("dy_pack_master.localize_ocio", text="Localize OCIO", icon='COLOR')
     layout.operator("dy_pack_master.missing_files_report", text="Missing Files Report", icon='ERROR')
+    layout.operator("dy_pack_master.custom_pack_project", text="Custom Pack Project", icon='FILEBROWSER')
 
 # -------------------------------------------------------------------------
 # Registration

@@ -14,6 +14,7 @@ import bpy
 from .scripts import ui
 from .scripts import modules
 from .scripts import pack_project
+from .scripts import custom_pack_project
 
 # Force UI refresh by toggling region redraw
 def update_menu_location(self, context):
@@ -65,10 +66,12 @@ def register():
     bpy.utils.register_class(DY_PACK_MASTER_Preferences)
     modules.register()
     pack_project.register()
+    custom_pack_project.register()
     ui.register()
 
 def unregister():
     ui.unregister()
+    custom_pack_project.unregister()
     pack_project.unregister()
     modules.unregister()
     bpy.utils.unregister_class(DY_PACK_MASTER_Preferences)

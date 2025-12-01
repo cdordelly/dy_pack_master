@@ -137,3 +137,26 @@ def log_to_file(log_path):
             yield
         finally:
             sys.stdout = old_stdout
+
+def open_directory(path):
+    """Open a directory in the system file explorer."""
+    import subprocess
+    import platform
+    
+    if not os.path.exists(path):
+        print(f"WARNING: Directory does not exist: {path}")
+        return False
+    
+    try:
+        system = platform.system()
+        if system == "Windows":
+            os.startfile(path)
+        elif system == "Darwin":  # macOS
+            subprocess.run(["open", path])
+        else:  # Linux and others
+            subprocess.run(["xdg-open", path])
+        print(f"Opened directory: {path}")
+        return True
+    except Exception as e:
+        print(f"WARNING: Failed to open directory: {e}")
+        return False

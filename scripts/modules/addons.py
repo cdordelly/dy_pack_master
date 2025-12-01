@@ -21,7 +21,7 @@ BLACKLIST = {
     "bl_ext.user_default",
     "io_anim_bvh",
     "bl_pkg",
-    "dy_pack_master" # Don't pack yourself!
+    "dy_pack_master"
 }
 
 def populate_addon_list(scene):
@@ -48,6 +48,60 @@ def populate_addon_list(scene):
     
     print(f"Refreshed add-on list: {len(scene.dy_pack_master_addon_list)} items found.")
 
+def localize_addons(base_path=None):
+    """Copy selected add-ons to the local 'addons' folder."""
+    base_path = base_path or utils.get_blend_dir()
+    if not base_path:
+        print("ERROR: Blend file must be saved before localizing add-ons.")
+        return {'CANCELLED'}
+
+    local_addons_dir = os.path.join(base_path, "addons")
+    utils.ensure_directory(local_addons_dir)
+
+    count = 0
+    scene = bpy.context.scene
+    for item in scene.dy_pack_master_addon_list:
+        if item.selected:
+            _localize_addon_item(item, local_addons_dir)
+            count += 1
+    
+    if count == 0:
+        print("No add-ons selected to localize.")
+    else:
+        print(f"Add-on localization complete. Localized {count} add-ons.")
+    return {'FINISHED'}
+
+def _localize_addon_item(item, dest_dir):
+    """Helper to localize a single addon item."""
+    src_path = item.path
+    module_name = item.module_name
+    clean_name = module_name.split('.')[-1]
+    zip_path = os.path.join(dest_dir, f"{clean_name}.zip")
+    
+    if os.path.basename(src_path) == '__init__.py':
+        src_folder = os.path.dirname(src_path)
+        try:
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, dirs, files in os.walk(src_folder):
+                    dirs[:] = [d for d in dirs if d != '__pycache__']
+                    for file in files:
+                        if file == '__pycache__' or file.endswith('.pyc'): continue
+                        file_path = os.path.join(root, file)
+                        rel_path = os.path.relpath(file_path, src_folder)
+                        arcname = os.path.join(clean_name, rel_path)
+                        zipf.write(file_path, arcname)
+            print(f"  - Zipped package: {module_name} -> {zip_path}")
+        except Exception as e:
+            print(f"ERROR zipping {module_name}: {e}")
+    else:
+        try:
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                arcname = os.path.basename(src_path)
+                zipf.write(src_path, arcname)
+            print(f"  - Zipped file: {module_name} -> {zip_path}")
+        except Exception as e:
+            print(f"ERROR zipping {module_name}: {e}")
+
 @persistent
 def load_handler(dummy):
     bpy.app.timers.register(lambda: populate_addon_list(bpy.context.scene) or None, first_interval=0.1)
@@ -73,53 +127,15 @@ class DY_PACK_MASTER_OT_localize_addons(bpy.types.Operator):
     bl_label = "Localize Selected"
 
     def execute(self, context):
-        base_path = utils.get_blend_dir()
-        if not base_path:
+        if not utils.get_blend_dir():
             self.report({'ERROR'}, "Save blend file first!")
             return {'CANCELLED'}
 
-        local_addons_dir = os.path.join(base_path, "addons")
-        utils.ensure_directory(local_addons_dir)
-
-        count = 0
-        scene = context.scene
-        for item in scene.dy_pack_master_addon_list:
-            if item.selected:
-                self.localize_addon(item, local_addons_dir)
-                count += 1
-        
-        self.report({'INFO'}, f"Localized {count} add-ons.")
-        return {'FINISHED'}
-
-    def localize_addon(self, item, dest_dir):
-        src_path = item.path
-        module_name = item.module_name
-        clean_name = module_name.split('.')[-1]
-        zip_path = os.path.join(dest_dir, f"{clean_name}.zip")
-        
-        if os.path.basename(src_path) == '__init__.py':
-            src_folder = os.path.dirname(src_path)
-            try:
-                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    for root, dirs, files in os.walk(src_folder):
-                        dirs[:] = [d for d in dirs if d != '__pycache__']
-                        for file in files:
-                            if file == '__pycache__' or file.endswith('.pyc'): continue
-                            file_path = os.path.join(root, file)
-                            rel_path = os.path.relpath(file_path, src_folder)
-                            arcname = os.path.join(clean_name, rel_path)
-                            zipf.write(file_path, arcname)
-                print(f"Zipped package: {module_name} -> {zip_path}")
-            except Exception as e:
-                print(f"ERROR zipping {module_name}: {e}")
-        else:
-            try:
-                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    arcname = os.path.basename(src_path)
-                    zipf.write(src_path, arcname)
-                print(f"Zipped file: {module_name} -> {zip_path}")
-            except Exception as e:
-                print(f"ERROR zipping {module_name}: {e}")
+        result = localize_addons()
+        if result == {'FINISHED'}:
+            count = sum(1 for item in context.scene.dy_pack_master_addon_list if item.selected)
+            self.report({'INFO'}, f"Localized {count} add-ons.")
+        return result
 
 class DY_PACK_MASTER_UL_addons_list(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
@@ -135,7 +151,6 @@ class DY_PACK_MASTER_OT_addons_tool(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     
     def invoke(self, context, event):
-        # Check if blend file is saved BEFORE showing dialog
         if not bpy.data.filepath:
             self.report({'ERROR'}, "Save blend file first!")
             return {'CANCELLED'}
@@ -148,13 +163,8 @@ class DY_PACK_MASTER_OT_addons_tool(bpy.types.Operator):
         
         row = layout.row()
         row.template_list("DY_PACK_MASTER_UL_addons_list", "", scene, "dy_pack_master_addon_list", scene, "dy_pack_master_addon_index", rows=10)
-        
-        row = layout.row(align=True)
-        #row.operator("dy_pack_master.localize_addons", icon='EXPORT', text="Localize Selected")
-        #row.operator("dy_pack_master.refresh_addons", icon='FILE_REFRESH', text="")
     
     def execute(self, context):
-        # Execute localization when OK is pressed
         result = bpy.ops.dy_pack_master.localize_addons()
         return result
 
