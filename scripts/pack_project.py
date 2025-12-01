@@ -2,7 +2,7 @@ import bpy
 import os
 import platform
 from datetime import datetime
-from .modules import mesh_sequence_cache, vdb, references, render_settings, report, utils
+from .modules import mesh_sequence_cache, vdb, references, render_settings, report, utils, images, movies
 
 # Get the addon package name for preferences lookup
 ADDON_NAME = __package__.rsplit('.', 1)[0] if '.' in __package__ else __package__
@@ -49,13 +49,13 @@ def pack_project():
         print("dy Pack Master - Pack Project")
         print("=" * 50)
 
-        print("\n[0/9] Saving current blend file...")
+        print("\n[0/11] Saving current blend file...")
         bpy.ops.wm.save_mainfile()
         
-        print("\n[1/9] Converting asset paths to absolute...")
+        print("\n[1/11] Converting asset paths to absolute...")
         utils.convert_all_paths_to_absolute()
         
-        print("\n[2/9] Saving to pack directory (switching to packed file)...")
+        print("\n[2/11] Saving to pack directory (switching to packed file)...")
         try:
             bpy.ops.wm.save_as_mainfile(filepath=new_filepath, copy=False)
             print(f"  - Now working in: {new_filepath}")
@@ -63,25 +63,31 @@ def pack_project():
             print(f"ERROR: Failed to save file: {e}")
             return {'CANCELLED'}, None
         
-        print("\n[3/9] Packing blend file resources...")
+        print("\n[3/11] Packing blend file resources...")
         bpy.ops.file.pack_all()
         
-        print("\n[4/9] Localizing Mesh Caches (ABC/USD)...")
+        print("\n[4/11] Localizing Images (Sequences & Movies)...")
+        images.localize_images(base_path=packed_dir)
+
+        print("\n[5/11] Localizing Movie Clips...")
+        movies.localize_movieclips(base_path=packed_dir)
+        
+        print("\n[6/11] Localizing Mesh Caches (ABC/USD)...")
         mesh_sequence_cache.localize_mesh_cache(base_path=packed_dir)
         
-        print("\n[5/9] Localizing References...")
+        print("\n[7/11] Localizing References...")
         references.localize_references(base_path=packed_dir)
         
-        print("\n[6/9] Localizing VDBs...")
+        print("\n[8/11] Localizing VDBs...")
         vdb.localize_vdb(base_path=packed_dir)
         
-        print("\n[7/9] Setting relative output path...")
+        print("\n[9/11] Setting relative output path...")
         render_settings.set_relative_output()
         
-        print("\n[8/9] Generating missing files report...")
+        print("\n[10/11] Generating missing files report...")
         report.missing_files_report(base_path=packed_dir)
         
-        print("\n[9/9] Saving final packed blend file...")
+        print("\n[11/11] Saving final packed blend file...")
         bpy.ops.wm.save_mainfile()
         
         print("\n" + "=" * 50)

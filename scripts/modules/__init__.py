@@ -5,6 +5,8 @@ from . import ocio
 from . import addons
 from . import report
 from . import render_settings
+from . import images
+from . import movies
 
 modules = (
     mesh_sequence_cache,
@@ -14,6 +16,8 @@ modules = (
     addons,
     report,
     render_settings,
+    images,
+    movies,
 )
 
 def register():

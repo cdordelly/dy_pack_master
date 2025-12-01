@@ -10,7 +10,7 @@ def get_absolute_path(path):
 
 def convert_all_paths_to_absolute():
     """Convert all asset paths to absolute before saving to new location."""
-    from . import mesh_sequence_cache, vdb, references
+    from . import mesh_sequence_cache, vdb, references, images, movies
     
     print("  - Converting mesh cache paths...")
     mesh_sequence_cache.set_absolute_path_mesh_cache()
@@ -20,6 +20,12 @@ def convert_all_paths_to_absolute():
     
     print("  - Converting reference paths...")
     references.set_absolute_path_references()
+    
+    print("  - Converting image sequence/movie paths...")
+    images.set_absolute_path_images()
+
+    print("  - Converting movie clip paths...")
+    movies.set_absolute_path_movieclips()
     
     print("  - Converting image paths...")
     for img in bpy.data.images:
