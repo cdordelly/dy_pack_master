@@ -52,6 +52,12 @@ class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
         default=True,
     )
 
+    open_directory_after_pack: bpy.props.BoolProperty(
+        name="Open directory after pack",
+        description="Open the output folder in file explorer after packing",
+        default=True,
+    )
+
     def draw(self, context):
         layout = self.layout
         
@@ -61,6 +67,7 @@ class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
         layout.label(text="Packing Settings", icon='FILE_BLEND')
         layout.prop(self, "blend_suffix")
         layout.prop(self, "reopen_original_file")
+        layout.prop(self, "open_directory_after_pack")
 
 def register():
     bpy.utils.register_class(DY_PACK_MASTER_Preferences)

@@ -99,6 +99,11 @@ def pack_project():
     if prefs.reopen_original_file:
         print(f"\nReopening original file: {original_filepath}")
         bpy.ops.wm.open_mainfile(filepath=original_filepath)
+
+    # Optionally open directory after pack
+    if prefs.open_directory_after_pack:
+        pack_dir = os.path.dirname(new_filepath)
+        utils.open_directory(pack_dir)
     
     return {'FINISHED'}, new_filepath
 
