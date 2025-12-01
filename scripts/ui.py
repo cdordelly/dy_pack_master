@@ -82,11 +82,11 @@ def menu_func_export(self, context):
     layout.separator()
     layout.label(text="dy Pack Master", icon='PACKAGE')
     layout.operator("dy_pack_master.pack_project", text="Pack Project", icon='EXPORT')
+    layout.operator("dy_pack_master.custom_pack_project", text="Custom Pack Project", icon='FILEBROWSER')
     # File > Export uses the popup dialog version
     layout.operator("dy_pack_master.addons_tool", text="Localize Add-ons", icon='PREFERENCES')
     layout.operator("dy_pack_master.localize_ocio", text="Localize OCIO", icon='COLOR')
     layout.operator("dy_pack_master.missing_files_report", text="Missing Files Report", icon='ERROR')
-    layout.operator("dy_pack_master.custom_pack_project", text="Custom Pack Project", icon='FILEBROWSER')
 
 # -------------------------------------------------------------------------
 # Registration
