@@ -15,6 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
       - name: Create addon zip
         run: |
           # Create a temporary directory with the correct addon name
@@ -25,19 +29,19 @@ jobs:
                     --exclude='.github' \
                     --exclude='rnd' \
                     --exclude='unit_tests' \
-                    --exclude='build' \
                     --exclude='*.pyc' \
                     --exclude='__pycache__' \
+                    --exclude='build' \
                     ./ build/dy_pack_master/
           
           # Create the zip file
           cd build
-          zip -r ../dy_pack_master.zip dy_pack_master
+          zip -r ../dy_pack_master-${{ steps.get_version.outputs.VERSION }}.zip dy_pack_master
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dy_pack_master.zip
+          files: dy_pack_master-${{ steps.get_version.outputs.VERSION }}.zip
           generate_release_notes: true
           draft: false
           prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
