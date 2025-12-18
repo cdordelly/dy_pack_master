@@ -1,5 +1,9 @@
 # dy Pack Master
 
+![License](https://img.shields.io/github/license/cdordelly/dy_pack_master?color=brightgreen)
+![Blender](https://img.shields.io/badge/Blender-4.2%2B-brightgreen)
+![Latest Release](https://img.shields.io/github/v/release/cdordelly/dy_pack_master?color=brightgreen)
+
 **Make Blender projects portable for render farms by localizing assets, addons, and dependencies.**
 
 `dy Pack Master` is a comprehensive tool designed to prepare your Blender projects for distribution or render farm submission. It automates the tedious process of collecting external assets, relinking them to relative paths, and even packing necessary add-ons.
