@@ -5,43 +5,43 @@ import zipfile
 from bpy.app.handlers import persistent
 from . import utils
 
-def load_blacklist():
-    """Load the addon blacklist from external txt file."""
-    blacklist_path = os.path.join(os.path.dirname(__file__), "addons_blacklist.txt")
-    blacklist = set()
-    if os.path.exists(blacklist_path):
-        with open(blacklist_path, 'r') as f:
+def load_exclusion_list():
+    """Load the addon exclusion list from external txt file."""
+    exclusion_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "addons_exclusion_list.txt"))
+    exclusion_list = set()
+    if os.path.exists(exclusion_path):
+        with open(exclusion_path, 'r') as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith('#'):
-                    blacklist.add(line)
-    return blacklist
+                    exclusion_list.add(line)
+    return exclusion_list
 
-def is_blacklisted(module_name, blacklist):
-    """Check if a module name is in the blacklist.
+def is_excluded(module_name, exclusion_list):
+    """Check if a module name is in the exclusion list.
     
     Handles full extension paths like 'bl_ext.user_default.dy_pack_master'
     by also checking the last component of the module name.
     """
-    if module_name in blacklist:
+    if module_name in exclusion_list:
         return True
-    # Check if the last part of the module name (after last dot) is blacklisted
+    # Check if the last part of the module name (after last dot) is excluded
     # This handles bl_ext.blender_org.animall -> animall
     short_name = module_name.rsplit('.', 1)[-1]
-    return short_name in blacklist
+    return short_name in exclusion_list
 
 def populate_addon_list(scene):
     """Populates the scene.dy_pack_master_addon_list with enabled addons"""
     scene.dy_pack_master_addon_list.clear()
     
-    # Reload blacklist from file on each refresh
-    blacklist = load_blacklist()
+    # Reload exclusion list from file on each refresh
+    exclusion_list = load_exclusion_list()
 
     for mod in addon_utils.modules():
         name = mod.__name__
         is_enabled, _ = addon_utils.check(name)
         if not is_enabled: continue
-        if is_blacklisted(name, blacklist): continue
+        if is_excluded(name, exclusion_list): continue
             
         info = addon_utils.module_bl_info(mod)
         addon_title = info.get("name", name)

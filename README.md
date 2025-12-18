@@ -4,22 +4,29 @@
 
 `dy Pack Master` is a comprehensive tool designed to prepare your Blender projects for distribution or render farm submission. It automates the tedious process of collecting external assets, relinking them to relative paths, and even packing necessary add-ons.
 
+![Demo](img/pack_project_demo.gif)
+
 ## Features
 
 ### 📦 Pack Project (One-Click)
+
+![Pack Project](img/ui_pack_project.jpg)
+
 The main tool that automates the entire packing workflow in one click:
 1. Saves the current blend file
-2. Converts all asset paths to absolute
-3. Creates a new directory with your configured suffix (e.g., `scene_packed/`)
-4. Packs all blend file resources
-5. Localizes all external assets (images, movies, caches, references, VDBs)
+2. Creates a new directory with your configured suffix (e.g., `scene_packed/`)
+3. Packs all blend file resources *(using vanilla Blender pack function)*
+4. Localizes all external assets (images, movies, caches, references, VDBs)
+5. Converts all asset paths to relative paths
 6. Sets render output to relative path
 7. Generates a missing files report
-8. Saves the final packed blend file
-9. Optionally reopens the original file and opens the output directory
+8. Optionally reopens the original file and opens the output directory
 
 ### 🎛️ Custom Pack Project
-A flexible export dialog that gives you full control over the packing process:
+
+![Custom Pack Project](img/ui_custom_pack_project.jpg)
+
+Configure specific localization steps and addon selections before starting the packing process:
 - **File browser** to choose output location and filename
 - **Toggle individual localization steps** on/off:
   - Images (Sequences & Movies)
@@ -34,7 +41,7 @@ A flexible export dialog that gives you full control over the packing process:
   - Open directory after pack
 
 ### 📁 Asset Localization
-Automatically copy external files to local subdirectories and relink them using relative paths ([//](cci:7://file:///:0:0-0:0)).
+Automatically copy external files to local subdirectories and relink them using relative paths `//`.
 
 - **Images & Movies**: Image sequences and movie files from texture nodes
   - Sequences -> `//sequences/`
@@ -55,10 +62,10 @@ Automatically copy external files to local subdirectories and relink them using 
   - Copies to `//ocio/`
 
 ### 🧩 Localize Add-ons
-Need to send custom add-ons to the farm?
+Bundle specific enabled add-ons with your project to ensure they are available on the render farm.
 - **UI List**: Select which enabled add-ons to pack
 - **Auto-Zip**: Automatically zips the add-on folders
-- **Exclude List**: Safely ignores core Blender add-ons
+- **Exclusion List**: Safely ignores core Blender add-ons (You can customize the exclusion list if needed by editing file: `dy_pack_master/addons_exclusion_list.txt`)
 - Copies to `//addons/`
 
 ### 🛠️ Tools
@@ -88,6 +95,8 @@ Every pack operation generates a detailed `pack_log.txt` file containing:
 
 Access addon preferences in **Edit > Preferences > Add-ons > dy Pack Master**.
 
+![Preferences](img/preferences.jpg)
+
 ### UI Settings
 - **Menu Location**: Choose where the addon tools appear:
   - **3D Viewport Sidebar** (default): Tools appear in the N-Panel
@@ -102,13 +111,19 @@ Access addon preferences in **Edit > Preferences > Add-ons > dy Pack Master**.
 ## UI Locations
 
 ### 3D Viewport Sidebar
-When set to Sidebar mode, tools appear in the N-Panel under "dy Pack Master" tab:
+
+![UI Sidebar](img/ui_sidebar.jpg)
+
+When set menu location to 3D Viewport Sidebar, tools appear in the N-Panel under "dy Pack Master" tab:
 - **Export**: Main Pack Project button
 - **Localize Add-ons**: Collapsible section with add-on list and localize button
 - **Tools**: Collapsible section with Custom Pack Project, Localize OCIO, and Missing Files Report
 
 ### File > Export Menu
-When set to Export mode, all tools appear in the File > Export menu:
+
+![UI Export](img/ui_export.jpg)
+
+When set menu location to File > Export, all tools appear in the File > Export menu:
 - Pack Project
 - Custom Pack Project
 - Localize Add-ons (opens popup dialog)
