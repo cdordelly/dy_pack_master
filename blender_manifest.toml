@@ -9,6 +9,7 @@ type = "add-on"
 website = "https://github.com/cdordelly/dy_pack_master"
 license = ["SPDX:GPL-3.0-or-later"]
 blender_version_min = "4.2.0"
+tags = ["Pipeline", "Import-Export", "System"]
 
 [permissions]
 files = "All" # We need full file access to copy assets anywhere
