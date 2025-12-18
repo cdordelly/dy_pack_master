@@ -5,34 +5,43 @@ import zipfile
 from bpy.app.handlers import persistent
 from . import utils
 
-BLACKLIST = {
-    "cycles",
-    "pose_library",
-    "io_scene_obj",
-    "io_scene_fbx",
-    "io_scene_gltf2",
-    "io_mesh_uv_layout",
-    "io_curve_svg",
-    "io_mesh_ply",
-    "io_mesh_stl",
-    "io_scene_x3d",
-    "space_view3d_spacebar_menu",
-    "viewport_vr_preview",
-    "bl_ext.user_default",
-    "io_anim_bvh",
-    "bl_pkg",
-    "dy_pack_master"
-}
+def load_blacklist():
+    """Load the addon blacklist from external txt file."""
+    blacklist_path = os.path.join(os.path.dirname(__file__), "addons_blacklist.txt")
+    blacklist = set()
+    if os.path.exists(blacklist_path):
+        with open(blacklist_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    blacklist.add(line)
+    return blacklist
+
+def is_blacklisted(module_name, blacklist):
+    """Check if a module name is in the blacklist.
+    
+    Handles full extension paths like 'bl_ext.user_default.dy_pack_master'
+    by also checking the last component of the module name.
+    """
+    if module_name in blacklist:
+        return True
+    # Check if the last part of the module name (after last dot) is blacklisted
+    # This handles bl_ext.blender_org.animall -> animall
+    short_name = module_name.rsplit('.', 1)[-1]
+    return short_name in blacklist
 
 def populate_addon_list(scene):
     """Populates the scene.dy_pack_master_addon_list with enabled addons"""
     scene.dy_pack_master_addon_list.clear()
+    
+    # Reload blacklist from file on each refresh
+    blacklist = load_blacklist()
 
     for mod in addon_utils.modules():
         name = mod.__name__
         is_enabled, _ = addon_utils.check(name)
         if not is_enabled: continue
-        if name in BLACKLIST: continue
+        if is_blacklisted(name, blacklist): continue
             
         info = addon_utils.module_bl_info(mod)
         addon_title = info.get("name", name)
@@ -110,6 +119,7 @@ class DY_PACK_MASTER_Item(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Name")
     module_name: bpy.props.StringProperty(name="Module Name")
     path: bpy.props.StringProperty(name="Path")
+    description: bpy.props.StringProperty(name="Description")
     selected: bpy.props.BoolProperty(name="Selected", default=False)
 
 class DY_PACK_MASTER_OT_refresh_addons(bpy.types.Operator):
@@ -139,7 +149,7 @@ class DY_PACK_MASTER_OT_localize_addons(bpy.types.Operator):
 
 class DY_PACK_MASTER_UL_addons_list(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        row = layout.row()
+        row = layout.row(align=True)
         row.prop(item, "selected", text="")
         row.label(text=item.name)
         row.label(text=f"({item.module_name})", icon='SCRIPT')
