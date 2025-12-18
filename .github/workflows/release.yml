@@ -25,6 +25,7 @@ jobs:
                     --exclude='.github' \
                     --exclude='rnd' \
                     --exclude='unit_tests' \
+                    --exclude='build' \
                     --exclude='*.pyc' \
                     --exclude='__pycache__' \
                     ./ build/dy_pack_master/
