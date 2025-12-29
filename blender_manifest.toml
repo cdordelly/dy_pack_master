@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "dy_pack_master"
-version = "1.0.0"
+version = "1.0.1"
 name = "dy Pack Master"
 tagline = "Make Blender projects portable for render farms"
 maintainer = "Carlos Dordelly - @cdordelly"
