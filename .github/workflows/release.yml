@@ -64,14 +64,12 @@ jobs:
           ${{ env.BLENDER_PATH }} --command extension validate "$PACKAGE_FILE"
           echo "Package validation passed."
 
-      - name: Rename package with version
+      - name: Get package path
         id: package
         run: |
-          ORIGINAL_FILE=$(ls ./dist/*.zip | head -1)
-          FINAL_NAME="${{ env.EXTENSION_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip"
-          mv "$ORIGINAL_FILE" "./dist/$FINAL_NAME"
-          echo "PACKAGE_PATH=./dist/$FINAL_NAME" >> $GITHUB_OUTPUT
-          echo "Package renamed to: $FINAL_NAME"
+          PACKAGE_FILE=$(ls ./dist/*.zip | head -1)
+          echo "PACKAGE_PATH=$PACKAGE_FILE" >> $GITHUB_OUTPUT
+          echo "Package built: $PACKAGE_FILE"
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
