@@ -12,7 +12,7 @@ on:
         default: false
 
 env:
-  BLENDER_VERSION: "4.2.4"
+  BLENDER_VERSION: "4.5.5"
   EXTENSION_NAME: "dy_pack_master"
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       - name: Download Blender
         run: |
           echo "Downloading Blender ${{ env.BLENDER_VERSION }}..."
-          wget -q https://download.blender.org/release/Blender4.2/blender-${{ env.BLENDER_VERSION }}-linux-x64.tar.xz
+          wget -q https://download.blender.org/release/Blender4.5/blender-${{ env.BLENDER_VERSION }}-linux-x64.tar.xz
           echo "Extracting Blender..."
           tar -xf blender-${{ env.BLENDER_VERSION }}-linux-x64.tar.xz
           echo "BLENDER_PATH=$(pwd)/blender-${{ env.BLENDER_VERSION }}-linux-x64/blender" >> $GITHUB_ENV
