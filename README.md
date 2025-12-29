@@ -1,7 +1,7 @@
 # dy Pack Master
 
 ![License](https://img.shields.io/github/license/cdordelly/dy_pack_master?color=brightgreen)
-![Blender](https://img.shields.io/badge/Blender-4.2%2B-brightgreen)
+![Blender](https://img.shields.io/badge/Blender-4.0%2B-brightgreen)
 ![Latest Release](https://img.shields.io/github/v/release/cdordelly/dy_pack_master?color=brightgreen)
 
 **Make Blender projects portable for render farms by localizing assets, addons, and dependencies.**
@@ -174,8 +174,6 @@ scene_packed/
 ├── references/         # Linked .blend files
 ├── ocio/               # OCIO config (if enabled)
 │   ├── config.ocio
-│   ├── set_OCIO_env.bat
-│   └── set_OCIO_env.sh
 └── addons/             # Zipped add-ons (if selected)
 ```
 
