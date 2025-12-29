@@ -11,6 +11,10 @@ on:
         type: boolean
         default: false
 
+env:
+  BLENDER_VERSION: "4.2.4"
+  EXTENSION_NAME: "dy_pack_master"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,30 +34,49 @@ jobs:
             echo "VERSION=manual" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create addon zip
+      - name: Download Blender
         run: |
-          # Create a temporary directory with the correct addon name
-          mkdir -p build/dy_pack_master
-          
-          # Copy addon files (excluding dev/test folders)
-          rsync -av --exclude='.git' \
-                    --exclude='.github' \
-                    --exclude='rnd' \
-                    --exclude='unit_tests' \
-                    --exclude='*.pyc' \
-                    --exclude='__pycache__' \
-                    --exclude='build' \
-                    ./ build/dy_pack_master/
-          
-          # Create the zip file
-          cd build
-          zip -r ../dy_pack_master-${{ steps.get_version.outputs.VERSION }}.zip dy_pack_master
+          echo "Downloading Blender ${{ env.BLENDER_VERSION }}..."
+          wget -q https://download.blender.org/release/Blender4.2/blender-${{ env.BLENDER_VERSION }}-linux-x64.tar.xz
+          echo "Extracting Blender..."
+          tar -xf blender-${{ env.BLENDER_VERSION }}-linux-x64.tar.xz
+          echo "BLENDER_PATH=$(pwd)/blender-${{ env.BLENDER_VERSION }}-linux-x64/blender" >> $GITHUB_ENV
+
+      - name: Validate extension manifest
+        run: |
+          echo "Validating extension manifest..."
+          ${{ env.BLENDER_PATH }} --command extension validate .
+          echo "Validation passed."
+
+      - name: Build extension package
+        run: |
+          echo "Building extension package..."
+          mkdir -p dist
+          ${{ env.BLENDER_PATH }} --command extension build --source-dir . --output-dir ./dist
+          echo "Build complete."
+          ls -la ./dist/
+
+      - name: Validate built package
+        run: |
+          echo "Validating built package..."
+          PACKAGE_FILE=$(ls ./dist/*.zip | head -1)
+          ${{ env.BLENDER_PATH }} --command extension validate "$PACKAGE_FILE"
+          echo "Package validation passed."
+
+      - name: Rename package with version
+        id: package
+        run: |
+          ORIGINAL_FILE=$(ls ./dist/*.zip | head -1)
+          FINAL_NAME="${{ env.EXTENSION_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip"
+          mv "$ORIGINAL_FILE" "./dist/$FINAL_NAME"
+          echo "PACKAGE_PATH=./dist/$FINAL_NAME" >> $GITHUB_OUTPUT
+          echo "Package renamed to: $FINAL_NAME"
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: dy_pack_master-${{ steps.get_version.outputs.VERSION }}.zip
+          files: ${{ steps.package.outputs.PACKAGE_PATH }}
           generate_release_notes: true
           draft: false
           prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
@@ -66,14 +89,14 @@ jobs:
           BLENDER_EXTENSIONS_TOKEN: ${{ secrets.BLENDER_EXTENSIONS_TOKEN }}
         run: |
           if [ -z "$BLENDER_EXTENSIONS_TOKEN" ]; then
-            echo "⚠️ BLENDER_EXTENSIONS_TOKEN not set, skipping Blender Extensions upload"
+            echo "WARNING: BLENDER_EXTENSIONS_TOKEN not set, skipping Blender Extensions upload"
             exit 0
           fi
           
-          echo "📦 Uploading to Blender Extensions Platform..."
-          curl -X POST https://extensions.blender.org/api/v1/extensions/dy_pack_master/versions/upload/ \
+          echo "Uploading to Blender Extensions Platform..."
+          curl -X POST https://extensions.blender.org/api/v1/extensions/${{ env.EXTENSION_NAME }}/versions/upload/ \
             -H "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
-            -F "version_file=@dy_pack_master-${{ steps.get_version.outputs.VERSION }}.zip" \
+            -F "version_file=@${{ steps.package.outputs.PACKAGE_PATH }}" \
             -F "release_notes=Release ${{ steps.get_version.outputs.VERSION }}"
           
-          echo "✅ Upload complete!"
+          echo "Upload complete."

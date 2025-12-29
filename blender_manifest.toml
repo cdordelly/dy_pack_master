@@ -8,8 +8,26 @@ maintainer = "Carlos Dordelly - @cdordelly"
 type = "add-on"
 website = "https://github.com/cdordelly/dy_pack_master"
 license = ["SPDX:GPL-3.0-or-later"]
-blender_version_min = "4.2.0"
+blender_version_min = "4.0.0"
 tags = ["Pipeline", "Import-Export", "System"]
 
 [permissions]
-files = "All" # We need full file access to copy assets anywhere
+files = "Copies and localizes external assets to project directory"
+
+[build]
+paths_exclude_pattern = [
+    "__pycache__/",
+    "*.pyc",
+    ".git/",
+    ".gitignore",
+    ".gitattributes",
+    ".github/",
+    "img/",
+    "rnd/",
+    "unit_tests/",
+    "builds/",
+    "*.blend",
+    "*.blend1",
+    "README.md",
+    "CHANGELOG.md",
+]

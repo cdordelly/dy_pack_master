@@ -27,7 +27,7 @@ def update_menu_location(self, context):
 
 # Addon Preferences
 class DY_PACK_MASTER_Preferences(bpy.types.AddonPreferences):
-    bl_idname = __name__
+    bl_idname = __package__
 
     menu_location: bpy.props.EnumProperty(
         name="Menu Location",

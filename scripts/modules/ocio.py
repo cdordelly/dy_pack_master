@@ -47,36 +47,6 @@ def localize_ocio():
     except OSError as e:
         print(f"WARNING: Failed to create info file: {e}")
 
-    if os.path.isfile(ocio_path):
-        config_filename = os.path.basename(ocio_path)
-    else:
-        config_filename = "config.ocio"
-
-    bat_file_path = os.path.join(dest_dir, "set_OCIO_env.bat")
-    bat_content = f"""@echo off
-reg add "HKCU\\Environment" /v "OCIO" /t REG_SZ /d "%~dp0{config_filename}" /f
-"""
-    try:
-        with open(bat_file_path, "w") as f:
-            f.write(bat_content)
-    except OSError as e:
-        print(f"WARNING: Failed to create batch file: {e}")
-
-    sh_file_path = os.path.join(dest_dir, "set_OCIO_env.sh")
-    sh_content = f"""#!/bin/bash
-export OCIO="$(cd "$(dirname "${{BASH_SOURCE[0]}}")" && pwd)/{config_filename}"
-echo "OCIO environment variable set to: $OCIO"
-"""
-    try:
-        with open(sh_file_path, "w") as f:
-            f.write(sh_content)
-        try:
-            os.chmod(sh_file_path, 0o755)
-        except:
-            pass
-    except OSError as e:
-        print(f"WARNING: Failed to create shell script: {e}")
-
     print("OCIO localization complete.")
     return {'FINISHED'}
 
