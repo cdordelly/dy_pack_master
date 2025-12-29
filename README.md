@@ -62,7 +62,6 @@ Automatically copy external files to local subdirectories and relink them using 
   - Copies to `//references/`
 - **OCIO Configuration**:
   - Copies your current OCIO configuration (from environment variable)
-  - Generates `set_OCIO_env.bat` and `.sh` scripts to easily set the environment on the farm
   - Copies to `//ocio/`
 
 ### 🧩 Localize Add-ons
